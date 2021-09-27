@@ -1,0 +1,14 @@
+model:
+  url: 'https://tfhub.dev/google/tf2-preview/inception_v3/feature_vector/4'
+  width: 299
+  height: 299
+  batch size: 128
+  number of features: 2048
+
+import:
+  pattern: ['/home/vws/projects/arosenius/arosenius-nearest-neighbors/paintings/images/*.jpg']
+export:
+  destination: './'
+
+similarity:
+  number of similar images: 30
