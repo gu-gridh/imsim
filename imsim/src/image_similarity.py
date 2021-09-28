@@ -52,8 +52,10 @@ class ImageSimilarity:
 
         rescaler = sklearn.preprocessing.MinMaxScaler(feature_range=range)
         
-        if self.projection != None:
-            self.projection = rescaler.transform(self.projection)
+        if self.projection is None:
+            pass
+        else:
+            self.projection = rescaler.fit_transform(self.projection)
 
         return self
 
