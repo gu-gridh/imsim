@@ -1,0 +1,8 @@
+tensorflow
+tensorflow_hub
+numpy
+umap-learn
+scikit-learn
+pyyaml
+annoy
+tqdm

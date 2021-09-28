@@ -6,7 +6,7 @@ model:
   number of features: 2048
 
 import:
-  pattern: ['/home/vws/projects/arosenius/arosenius-nearest-neighbors/paintings/images/*.jpg']
+  pattern: 'glob-pattern-to-files'
 
 export:
   destination: './'

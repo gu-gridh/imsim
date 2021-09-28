@@ -1,0 +1,15 @@
+name: imsim
+channels:
+  - anaconda
+  - conda-forge
+dependencies:
+  - pip
+  - pip:
+    - tensorflow
+    - tensorflow_hub
+    - numpy
+    - umap-learn
+    - scikit-learn
+    - pyyaml
+    - annoy
+    - tqdm
