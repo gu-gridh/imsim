@@ -5,7 +5,7 @@ class Nearest:
 
     def __init__(self, dims = 1280, n_trees = 10000) -> None:
         
-        self.tree = annoy.AnnoyIndex(dims)
+        self.tree = annoy.AnnoyIndex(dims, metric='angular')
         self.n_trees = n_trees
         self.name_to_index_dict = {}
         self.index_to_name_dict = {}

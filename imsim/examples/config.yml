@@ -7,8 +7,12 @@ model:
 
 import:
   pattern: ['/home/vws/projects/arosenius/arosenius-nearest-neighbors/paintings/images/*.jpg']
+
 export:
   destination: './'
 
 similarity:
   number of similar images: 30
+
+logging:
+  level: 3

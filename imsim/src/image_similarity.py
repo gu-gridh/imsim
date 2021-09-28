@@ -1,7 +1,9 @@
 from .features import Embedding
 from .data import ImageDataset
 from .nearest_neighbours import Nearest
+
 import umap
+import sklearn
 import os
 import json 
 
@@ -11,6 +13,8 @@ class ImageSimilarity:
         self.images = images
         self.height = height
         self.width = width
+        self.paths = None
+        self.projection = None
 
     @classmethod
     def from_pattern(cls, height, width, batch_size, pattern):
@@ -44,14 +48,23 @@ class ImageSimilarity:
 
         return self
 
+    def rescale(self, range=[0,1]):
+
+        rescaler = sklearn.preprocessing.MinMaxScaler(feature_range=range)
+        
+        if self.projection:
+            self.projection = rescaler.transform(self.projection)
+
+        return self
+
     def save_to(self, destination_folder):
 
-        images_dict = {path: {x: feature[0], y: feature[1]} for path, feature in zip(self.paths, self.projection)}
+        images_dict = {path.decode('utf8'): {'x': float(feature[0]), 'y': float(feature[1])} for path, feature in zip(self.paths, self.projection)}
 
-        with open(os.path.join(destination_folder, 'projection.json')) as f:
-            json.dump(f)
+        with open(os.path.join(destination_folder, 'projection.json'), 'w') as f:
+            json.dump(images_dict, f, indent=4)
 
-        with open(os.path.join(destination_folder, 'nearest.npz')) as f:
-            pass
+        # with open(os.path.join(destination_folder, 'nearest.npz')) as f:
+        #     pass
 
         return self

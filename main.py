@@ -4,46 +4,24 @@ import yaml
 import glob
 
 from imsim import ImageSimilarity
+from imsim import utils
 
-def parse_config(config):
 
-  # Save params in dict
-  params = dict(
-    model_url = config['model']['url'], 
-    height = config['model']['height'], 
-    width = config['model']['width'], 
-    batch_size = config['model']['batch size'], 
-    pattern = config['import']['pattern'], 
-    destination_dir = config['export']['destination'], 
-    n_features = config['model']['number of features'], 
-    n_neighbors = config['similarity']['number of similar images']
-  )
-
-  return params
-
-def parse_args(args): 
-
-  # Save params in dict
-  params = dict(
-    model_url = args.model_url, 
-    height = args.height, 
-    width = args.width, 
-    batch_size = args.batch_size, 
-    pattern = args.pattern, 
-    destination_dir = args.destination, 
-    n_features = args.n_features, 
-    n_neighbors = args.n_neighbors
-  )
-
-  return params
-
-def run(model_url, height, width, batch_size, pattern, destination_dir, n_features, n_neighbors):
+def run(model_url='https://tfhub.dev/google/tf2-preview/inception_v3/feature_vector/4', 
+        height=299, 
+        width=299, 
+        batch_size=128, 
+        pattern=[], 
+        destination_dir='', 
+        n_features=2048, 
+        n_neighbors=30):
 
     # If only one pattern
     if isinstance(pattern, str):
     
       index = ImageSimilarity.from_pattern(height, width, batch_size, pattern)\
                             .embed(model_url, n_features, n_neighbors)\
+                            .rescale()\
                             .save_to(destination_dir)
 
     # Pass all files if multiple patterns (or filenames)
@@ -55,6 +33,7 @@ def run(model_url, height, width, batch_size, pattern, destination_dir, n_featur
 
       index = ImageSimilarity.from_files(height, width, batch_size, files)\
                              .embed(model_url, n_features, n_neighbors)\
+                             .rescale()\
                              .save_to(destination_dir)
 
 if __name__ == '__main__':
@@ -67,37 +46,37 @@ if __name__ == '__main__':
     parser.add_argument('-H', '--height',       type=int, help='Desired height in pixels')
     parser.add_argument('-W', '--width',        type=int, help='Desired width in pixels')
     parser.add_argument('-n', '--n-features',   type=int, metavar="n_features", help='Dimensionality of output embedding')
+    parser.add_argument('-N', '--n-neighbors',  type=int, metavar="n_neighbors", help='Number of similar images to index')
     parser.add_argument('-d', '--destination',  type=str, help='Destination directory to store embedding and indexing')
     parser.add_argument('-b', '--batch-size',   type=int, metavar="batch_size", default=128, help='batch size during embedding')
     parser.add_argument('-c', '--config',       type=str, help='Configuration file')
+    parser.add_argument('-l', '--logging',      type=int, help='Level of logging: All=0, Warnings=1, Errors=2, Fatal=3')
 
     # Parse the input
     args = parser.parse_args()
 
     params = dict()
+    try: 
 
-    # First check for configuration file
-    if args.config:
-
-      try:
+      # First check for configuration file
+      if args.config:
 
         # Configuration file is default
         with open(args.config, 'r') as f:
           config = yaml.load(f, Loader=yaml.Loader)
 
         # Parse the configuration file
-        params.update(parse_config(config))
-
-      except Exception as e:
-        print(e)
-
-    try:
-      
+        params.update(utils.parse_config(config))
+          
       # Overwrite any arguments from config
-      params.update(parse_args(args))
+      params.update({k:v for k,v in utils.parse_args(args).items() if v is not None})
+
+      # Set logging level
+      utils.set_logging_level(params.pop('logging'))
+
+      # Run application
+      run(**params)
 
     except Exception as e:
+      # TODO: Move to logging
       print(e)
-
-    # Run application
-    run(**params)
