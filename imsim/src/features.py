@@ -41,12 +41,16 @@ class Embedding:
     def transform(self, images):
         
         features = []
-        paths = []
-        for batch, labels in tqdm(images.data, total=images.data.cardinality().numpy()):
+        paths    = []
+
+        for batch, ps in tqdm(images.data, total=images.data.cardinality().numpy()):
             embedding = self.embed(batch)
-            paths.append(labels)
+
+            # Add metadata
+            paths.append(ps)
             features.append(embedding)
 
+        # Flatten 
         features = tf.concat(features, axis=0).numpy()
         paths = tf.concat(paths, axis=0).numpy().tolist()
 

@@ -6,6 +6,7 @@ import umap
 import sklearn
 import os
 import json 
+import tensorflow as tf
 
 class ImageSimilarity:
 
@@ -41,10 +42,9 @@ class ImageSimilarity:
 
         images_dict = {path: feature for path, feature in zip(paths, embedding)}
 
-
+        self.paths = paths
         self.nearest = Nearest(dims=n_features).build(images_dict)
         self.projection = umap.UMAP(densmap=False, n_neighbors=n_neighbors, random_state=42).fit_transform(embedding)
-        self.paths = paths
 
         return self
 
@@ -61,10 +61,30 @@ class ImageSimilarity:
 
     def save_to(self, destination_folder):
 
-        images_dict = {path.decode('utf8'): {'x': float(feature[0]), 'y': float(feature[1])} for path, feature in zip(self.paths, self.projection)}
+        metadata = []
+
+        for path, feature in zip(self.paths, self.projection):
+            
+            # Get dimensions of original image
+            img = tf.io.read_file(path)
+            img = tf.io.decode_jpeg(img, channels=3)
+            height, width, depth = img.get_shape()
+
+            # Get position in 2D-plane
+            x = float(feature[0])
+            y = float(feature[1])
+
+            metadata.append({
+                'path': path.decode('utf-8'),
+                'height': height,
+                'width': width,
+                'x': x,
+                'y': y
+            })
+
 
         with open(os.path.join(destination_folder, 'projection.json'), 'w') as f:
-            json.dump(images_dict, f, indent=4)
+            json.dump(metadata, f, indent=4)
 
         # with open(os.path.join(destination_folder, 'nearest.npz')) as f:
         #     pass

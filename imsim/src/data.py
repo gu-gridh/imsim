@@ -19,7 +19,7 @@ class ImageDataset:
         return cls(tf.data.Dataset.from_tensor_slices(file_list))
 
     @staticmethod
-    def decode(path, height: int, width: int) -> Tuple[tf.Tensor, str]:
+    def decode(path, new_height: int, new_width: int) -> Tuple[tf.Tensor, str]:
 
         # load the raw data from the file as a string
         img = tf.io.read_file(path)
@@ -27,8 +27,10 @@ class ImageDataset:
         # convert the compressed string to a 3D uint8 tensor
         img = tf.io.decode_jpeg(img, channels=3)
 
-        # resize the image to the desired size
-        return tf.image.resize(img, [height, width]), path
+        # Resize to destination size
+        x = tf.image.resize_with_pad(img, new_height, new_width)
+
+        return x, path
 
     def prepare(self, height: int, width: int, batch_size: int):
 
