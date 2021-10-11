@@ -75,7 +75,7 @@ class ImageSimilarity:
             y = float(feature[1])
 
             metadata.append({
-                'path': path.decode('utf-8'),
+                'path': path.decode('utf-8').split("/")[-1],
                 'height': height,
                 'width': width,
                 'x': x,
