@@ -3,7 +3,6 @@ import os
 import yaml
 import glob
 
-from imsim import ImageSimilarity
 from imsim import utils
 
 def run(model_url='https://tfhub.dev/google/tf2-preview/inception_v3/feature_vector/4', 
@@ -14,6 +13,8 @@ def run(model_url='https://tfhub.dev/google/tf2-preview/inception_v3/feature_vec
         destination_dir='', 
         n_features=2048, 
         n_neighbors=30):
+
+    from imsim import ImageSimilarity
 
     # If only one pattern
     if isinstance(pattern, str):
@@ -69,6 +70,8 @@ def main():
           
     # Overwrite any arguments from config
     params.update({k:v for k,v in utils.parse_args(args).items() if v is not None})
+
+    print(params)
 
     # Set logging level
     utils.set_logging_level(params.pop('logging'))
